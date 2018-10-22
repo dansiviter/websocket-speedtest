@@ -1,0 +1,21 @@
+# Maven
+/target/
+
+# Eclipse
+/.settings/
+/.classpath
+/.project
+
+# Node
+**/node_modules
+
+src/main/web/build
+src/main/webapp/static
+src/main/webapp/asset-manifest.json
+src/main/webapp/index.html
+src/main/webapp/favicon.ico
+src/main/webapp/manifest.json
+src/main/webapp/service-worker.js
+src/main/webapp/precache-manifest.*.js
+
+*.log
