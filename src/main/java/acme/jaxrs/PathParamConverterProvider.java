@@ -39,6 +39,7 @@ public class PathParamConverterProvider implements ParamConverterProvider {
 			return new ParamConverter<T>() {
 
 				@Override
+				@SuppressWarnings("unchecked")
 				public T fromString(String value) {
 					return (T) Paths.get(value).normalize();
 				}
