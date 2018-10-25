@@ -14,6 +14,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<thorntail.version>2.2.0.Final</thorntail.version>
 		<failOnMissingWebXml>false</failOnMissingWebXml>
+		<buildFinalName>${project.artifactId}-${project.version}</buildFinalName>
 	</properties>
 
 	<dependencyManagement>
@@ -67,6 +68,7 @@
 	</dependencies>
 
 	<build>
+	    <finalName>${buildFinalName}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>io.thorntail</groupId>
