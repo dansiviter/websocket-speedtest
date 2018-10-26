@@ -18,4 +18,7 @@ src/main/webapp/manifest.json
 src/main/webapp/service-worker.js
 src/main/webapp/precache-manifest.*.js
 
+# VSCOde
+.vscode
+
 *.log
