@@ -138,6 +138,12 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+				    <useSystemClassLoader>false</useSystemClassLoader> <!-- SUREFIRE-1588 -->
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>
