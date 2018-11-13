@@ -15,41 +15,32 @@
  */
 package acme;
 
-import java.nio.ByteBuffer;
-import java.util.Random;
+import static acme.FileSize.BYTE;
+import static acme.FileSize.KILOBYTE;
+import static acme.FileSize.MEGABYTE;
+import static org.junit.Assert.assertEquals;
 
+import org.junit.Test;
 
 /**
+ * Unit test for {@link FileSize}.
  * 
  * @author Daniel Siviter
- * @since v1.0 [7 Aug 2018]
+ * @since v1.0 [13 Nov 2018]
  *
  */
-public enum FileSize { 
-	BYTE(1),
-	KILOBYTE(1024),
-	MEGABYTE((int) Math.pow(1024, 2));
-
-	public final ByteBuffer buf;
-
-	private FileSize(int size) {
-		final Random rand = new Random();
-		final ByteBuffer buf = ByteBuffer.allocate(size);
-		rand.nextBytes(buf.array());
-		this.buf = buf.asReadOnlyBuffer();
+public class FileSizeTest {
+	@Test
+	public void size() {
+		assertEquals(1, BYTE.size());
+		assertEquals(1_024, KILOBYTE.size());
+		assertEquals(1_048_576, MEGABYTE.size());
 	}
 
-	/**
-	 * @return read only buffer.
-	 */
-	public ByteBuffer buf() {
-		return this.buf;
-	}
-
-	/**
-	 * @return the file size this file represents.
-	 */
-	public int size() {
-		return buf().capacity();
+	@Test
+	public void buf_capacity() {
+		assertEquals(1, BYTE.buf().capacity());
+		assertEquals(1_024, KILOBYTE.buf().capacity());
+		assertEquals(1_048_576, MEGABYTE.buf().capacity());
 	}
 }

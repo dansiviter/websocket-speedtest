@@ -19,10 +19,10 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 /**
+ * Initialises JAX-RS.
  * 
  * @author Daniel Siviter
  * @since v1.0 [6 Aug 2018]
- *
  */
 @ApplicationPath("")
-public class Initialiser extends Application { }
+public class RestApplication extends Application { }
