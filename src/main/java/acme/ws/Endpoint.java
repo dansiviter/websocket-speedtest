@@ -15,21 +15,25 @@
  */
 package acme.ws;
 
-import static java.util.logging.Level.FINE;
-import static java.util.logging.Level.INFO;
-
-import java.util.logging.Logger;
+import java.io.IOException;
+import java.util.function.Supplier;
 
 import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.websocket.CloseReason;
+import javax.websocket.OnClose;
+import javax.websocket.OnError;
 import javax.websocket.OnMessage;
+import javax.websocket.OnOpen;
 import javax.websocket.PongMessage;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import acme.SpeedTestService;
+import org.jboss.logging.Logger;
+
+import acme.PingService;
 import acme.api.ControlMessage;
 
 /**
@@ -38,28 +42,36 @@ import acme.api.ControlMessage;
  * @since v1.0 [6 Aug 2018]
  */
 @ServerEndpoint(
-		subprotocols = "speed-test",
 		value = "/ws",
+		subprotocols = "speed-test",
 		decoders = { ControlMessageEncoding.class, FileEncoding.class },
 		encoders = { ControlMessageEncoding.class, FileEncoding.class, ResultsEncoder.class }
-)
+		)
 public class Endpoint {
 	private static final String SERVICE = "service";
 
 	@Inject
 	private Logger log;
 	@Inject
-	private Provider<SpeedTestService> pingService;
+	private Provider<PingService> pingService;
 	@Resource
 	private ManagedScheduledExecutorService executor;
 
+	@OnOpen
+	public void onOpen(Session session) {
+		this.log.infof("Connection opened. [sessionId=%s]", session.getId());
+	}
+
 	@OnMessage
 	public void onControl(Session session, ControlMessage msg) {
-		this.log.log(INFO, "Control received. [type={0}]", msg.type());
+		this.log.infof("Control received. [sessionId=%s,type=%s]", session.getId(), msg.type());
 		switch (msg.type()) {
 		case START: {
 			session.getUserProperties().clear();
-			pingService(session).start(session, msg.intParam("warmUp"), msg.intParam("cycles"));
+			pingService(session).start(
+					session,
+					msg.intParam("warmUp"),
+					msg.intParam("cycles"));
 			break;
 		}
 		case FINISH: {
@@ -73,13 +85,14 @@ public class Endpoint {
 
 	@OnMessage
 	public void onBinary(Session session, byte[] msg, boolean last) {
-		this.log.log(INFO, "Binary received. [msg={0},last={1}]", new Object[] { msg, last });
+		this.log.infof("Binary received. [sessionId=%s,msg=%s,last=%s]", session.getId(), msg, last);
 	}
 
 	@OnMessage
 	public void onPing(Session session, PongMessage msg) {
-		this.log.log(FINE, "Ping received. [{0}]", msg);
-
+		if (this.log.isTraceEnabled()) {
+			this.log.tracef("Ping received. [sessionId=%s,msg=%s]", session.getId(), msg);
+		}
 		if (msg.getApplicationData().capacity() == 0) { // warmup, ignore
 			return;
 		}
@@ -88,13 +101,28 @@ public class Endpoint {
 		pingService(session).onPing(msg, nanos);
 	}
 
+	@OnError
+	public void onError(Session session, Throwable t) {
+		this.log.warnf("Error! [sessionId=%s,msg=%s]", session.getId(), t.getMessage(), t);
+		try {
+			session.getBasicRemote().sendText("ERROR: " + t.getMessage());
+		} catch (IOException e) {
+			this.log.error(e.getMessage(), e);
+		}
+	}
+
+	@OnClose
+	public void onClose(Session session, CloseReason reason) {
+		this.log.infof("Connection closed. [sessionId=%s,reasonCode=%d]", session.getId(), reason.getCloseCode());
+	}
+
 	/**
 	 * 
 	 * @param session
 	 * @return
 	 */
-	private SpeedTestService pingService(Session session) {
-		return SpeedTestService.class.cast(
+	private PingService pingService(Session session) {
+		return PingService.class.cast(
 				session.getUserProperties().computeIfAbsent(SERVICE, (k) -> this.pingService.get()));
 	}
 }

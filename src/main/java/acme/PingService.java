@@ -17,14 +17,12 @@ package acme;
 
 import static java.lang.System.nanoTime;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.logging.Level.WARNING;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
-import java.util.logging.Logger;
 
 import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
@@ -35,6 +33,8 @@ import javax.websocket.PongMessage;
 import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
 
+import org.jboss.logging.Logger;
+
 import acme.api.Results;
 
 /**
@@ -44,7 +44,7 @@ import acme.api.Results;
  *
  */
 @Dependent
-public class SpeedTestService {
+public class PingService {
 	private static final ByteBuffer EMPTY_BUF = ByteBuffer.allocate(0);
 
 	@Inject
@@ -80,7 +80,7 @@ public class SpeedTestService {
 				this.future.cancel(false);
 			}
 		} catch (IOException e) {
-			this.log.log(WARNING, "Aggggh!", e);
+			this.log.warn("Aggggh!", e);
 		}
 	}
 
@@ -95,7 +95,7 @@ public class SpeedTestService {
 			try {
 				this.basic.sendObject(new Results(this.pingResults));
 			} catch (IOException | EncodeException e) {
-				this.log.log(WARNING, "Aggggh!", e);
+				this.log.warn("Aggggh!", e);
 			}
 		}
 	}

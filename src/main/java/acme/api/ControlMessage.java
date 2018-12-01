@@ -15,7 +15,6 @@
  */
 package acme.api;
 
-import static java.lang.Integer.parseInt;
 import static java.util.Collections.unmodifiableMap;
 
 import java.util.Map;
@@ -32,10 +31,10 @@ import javax.json.bind.annotation.JsonbProperty;
 public class ControlMessage {
 	private final Type type;
 
-	private final Map<String, String> params;
+	private final Map<String, Object> params;
 
 	@JsonbCreator
-	public ControlMessage(@JsonbProperty("type") Type type, @JsonbProperty("params") Map<String, String> params) {
+	public ControlMessage(@JsonbProperty("type") Type type, @JsonbProperty("params") Map<String, Object> params) {
 		this.type = type;
 		this.params = unmodifiableMap(params);
 	}
@@ -44,16 +43,16 @@ public class ControlMessage {
 		return this.type;
 	}
 
-	public Map<String, String> params() {
+	public Map<String, Object> params() {
 		return params;
 	}
 
 	public String param(String name) {
-		return params().get(name);
+		return (String) params().get(name);
 	}
 
 	public int intParam(String name) {
-		return parseInt(param(name));
+		return ((Number) params().get(name)).intValue();
 	}
 
 

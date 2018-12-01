@@ -15,12 +15,12 @@
  */
 package acme;
 
-import java.util.logging.Logger;
-
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.InjectionPoint;
+
+import org.jboss.logging.Logger;
 
 /**
  * 
@@ -40,6 +40,6 @@ public class LogProducer {
 	 * @return the logger instance.
 	 */
 	public static Logger logger(Class<?> cls) {
-		return Logger.getLogger(cls.getName());
+		return Logger.getLogger(cls);
 	}
 }
