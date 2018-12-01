@@ -6,6 +6,7 @@ import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import withStyles from '@material-ui/core/styles/withStyles';
 import Gauge from 'react-svg-gauge';
 
@@ -16,7 +17,7 @@ const styles = theme => ({
 		marginLeft: theme.spacing.unit * 3,
 		marginRight: theme.spacing.unit * 3,
 		[theme.breakpoints.up(800 + theme.spacing.unit * 3 * 2)]: {
-			width: 800,
+			width: 710,
 			marginLeft: 'auto',
 			marginRight: 'auto',
 		},
@@ -70,7 +71,7 @@ class App extends Component {
 				var jitter = Math.round(results.jitter / 1000000) // nanos
 				var serverTimestamp = new Date(results.timestamp);
 				var clockDiff = timestamp - serverTimestamp;
-				var clockDrift = (clockDiff - avgRtt) / 2;
+				var clockDrift = Math.abs((clockDiff - avgRtt) / 2);
 				console.log('RTT=' + avgRtt + 'ms, Jitter=' + jitter + 'ms, diff=' + clockDiff + ', drift: ' + clockDrift + 'ms');
 				this.setState({
 					avgRtt: avgRtt,
@@ -94,8 +95,8 @@ class App extends Component {
 	}
 	
 	handleClickStart = () => {
-		const warmUpCycles = '10';
-		const testCycles = '10';
+		const warmUpCycles = 10;
+		const testCycles = 10;
 		console.log('Starting - warm-up=' + warmUpCycles + ', test=' + testCycles);
 		this.worker.postMessage({ type: "START", params: {
 			warmUp: warmUpCycles, cycles: testCycles }
@@ -136,6 +137,7 @@ class App extends Component {
 								subheader="Click 'Start' to begin the test."
 								className={ classes.cardHeader }
 							/>
+							<LinearProgress value={ 100 } variant={ this.state.state === 'STARTED' ? "indeterminate" : "determinate" }/>
 							<CardContent>
 							<Gauge width={220} height={140} max={ 50 } label={ 'Average RTT' }
 									color={avgRttHex} value={ this.state.avgRtt }
