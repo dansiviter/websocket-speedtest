@@ -22,8 +22,6 @@ import static java.math.RoundingMode.HALF_UP;
 import static java.util.Collections.unmodifiableList;
 
 import java.math.MathContext;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -39,13 +37,11 @@ public class Results {
 	private final List<Integer> pings;
 	private final long avgRtt;
 	private final long jitter;
-	private final ZonedDateTime timestamp;
 
 	public Results(List<Integer> pings) {
 		this.pings = unmodifiableList(pings);
 		this.avgRtt = mean(pings);
 		this.jitter = calcJitter(pings);
-		this.timestamp = ZonedDateTime.now(ZoneId.of("Z"));
 	}
 
 	/**
@@ -67,10 +63,6 @@ public class Results {
 	 */
 	public long getJitter() {
 		return jitter;
-	}
-
-	public ZonedDateTime getTimestamp() {
-		return timestamp;
 	}
 
 

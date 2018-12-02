@@ -16,7 +16,6 @@
 package acme.ws;
 
 import java.io.IOException;
-import java.util.function.Supplier;
 
 import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
@@ -70,8 +69,8 @@ public class Endpoint {
 			session.getUserProperties().clear();
 			pingService(session).start(
 					session,
-					msg.intParam("warmUp"),
-					msg.intParam("cycles"));
+					msg.numParam("warmUp").intValue(),
+					msg.numParam("cycles").intValue());
 			break;
 		}
 		case FINISH: {
@@ -113,7 +112,7 @@ public class Endpoint {
 
 	@OnClose
 	public void onClose(Session session, CloseReason reason) {
-		this.log.infof("Connection closed. [sessionId=%s,reasonCode=%d]", session.getId(), reason.getCloseCode());
+		this.log.infof("Connection closed. [sessionId=%s,reasonCode=%s]", session.getId(), reason.getCloseCode());
 	}
 
 	/**

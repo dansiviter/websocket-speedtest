@@ -140,8 +140,9 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.1</version>
 				<configuration>
-				    <useSystemClassLoader>false</useSystemClassLoader> <!-- SUREFIRE-1588 -->
+					<useSystemClassLoader>false</useSystemClassLoader> <!-- SUREFIRE-1588 -->
 				</configuration>
 			</plugin>
 		</plugins>

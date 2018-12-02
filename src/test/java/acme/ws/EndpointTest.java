@@ -94,6 +94,7 @@ public class EndpointTest {
 	public void onControl() {
 		when(this.session.getId()).thenReturn("ABC123");
 		final Map<String, Object> params = new HashMap<>();
+		params.put("clientStart", 1L);
 		params.put("warmUp", 1);
 		params.put("cycles", 2);
 		final ControlMessage msg = new ControlMessage(START, params);
@@ -160,7 +161,7 @@ public class EndpointTest {
 		this.endpoint.onClose(this.session, new CloseReason(CANNOT_ACCEPT, null));
 
 		verify(this.session).getId();
-		verify(this.log).infof("Connection closed. [sessionId=%s,reasonCode=%d]", "ABC123", CANNOT_ACCEPT);
+		verify(this.log).infof("Connection closed. [sessionId=%s,reasonCode=%s]", "ABC123", CANNOT_ACCEPT);
 	}
 
 	@After

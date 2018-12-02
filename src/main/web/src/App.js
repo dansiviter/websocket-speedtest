@@ -17,7 +17,7 @@ const styles = theme => ({
 		marginLeft: theme.spacing.unit * 3,
 		marginRight: theme.spacing.unit * 3,
 		[theme.breakpoints.up(800 + theme.spacing.unit * 3 * 2)]: {
-			width: 710,
+			width: 490,
 			marginLeft: 'auto',
 			marginRight: 'auto',
 		},
@@ -46,7 +46,6 @@ class App extends Component {
 			state: null,
 			avgRtt: 0,
 			jitter: 0,
-			drift: 0
 	};
 
 	componentDidMount = () => {
@@ -63,20 +62,15 @@ class App extends Component {
 			console.log('MESSAGE:' + e.data.msg);
 			break;
 		case 'RESULTS':
-			var timestamp = e.data.timestamp;
-			console.log('Server [' + new Date(timestamp).toISOString() + ']: ' + e.data.data);
 			if (typeof e.data.data === "string") {
 				var results = JSON.parse(e.data.data);
 				var avgRtt = Math.round(results.avgRtt / 1000000) // nanos
 				var jitter = Math.round(results.jitter / 1000000) // nanos
 				var serverTimestamp = new Date(results.timestamp);
-				var clockDiff = timestamp - serverTimestamp;
-				var clockDrift = Math.abs((clockDiff - avgRtt) / 2);
-				console.log('RTT=' + avgRtt + 'ms, Jitter=' + jitter + 'ms, diff=' + clockDiff + ', drift: ' + clockDrift + 'ms');
+				console.log('RTT=' + avgRtt + 'ms, Jitter=' + jitter + 'ms');
 				this.setState({
 					avgRtt: avgRtt,
 					jitter: jitter,
-					drift: clockDrift
 				});
 			}
 			this.setState({
@@ -93,7 +87,11 @@ class App extends Component {
 			console.log('Unknown ' + e.data.type);
 		}
 	}
-	
+
+	calculateDrift = (client, server) => {
+		
+	}
+
 	handleClickStart = () => {
 		const warmUpCycles = 10;
 		const testCycles = 10;
@@ -117,7 +115,6 @@ class App extends Component {
 		const { classes } = this.props;
 		const avgRttHex = this.colourHex(this.state.avgRtt, 50);
 		const jitterHex = this.colourHex(this.state.jitter, 20);
-		const driftHex = this.colourHex(this.state.drift, 50);
 		const valueStyle = {
 				fontSize: '2em'
 		}
@@ -147,12 +144,6 @@ class App extends Component {
 									minMaxLabelStyle={ minMaxStyle } />
 							<Gauge width={220} height={140} max={ 20 } label={ 'Jitter' }
 									color={jitterHex} value={ this.state.jitter }
-									valueFormatter={ value => `${value}ms` } 
-									topLabelStyle={ topStyle }
-									valueLabelStyle={ valueStyle }
-									minMaxLabelStyle={ minMaxStyle } />
-							<Gauge width={220} height={140} max={ 50 } label={ 'Clock Drift' }
-									color={driftHex} value={ this.state.drift }
 									valueFormatter={ value => `${value}ms` } 
 									topLabelStyle={ topStyle }
 									valueLabelStyle={ valueStyle }

@@ -51,8 +51,8 @@ public class ControlMessage {
 		return (String) params().get(name);
 	}
 
-	public int intParam(String name) {
-		return ((Number) params().get(name)).intValue();
+	public Number numParam(String name) {
+		return ((Number) params().get(name));
 	}
 
 
