@@ -10,7 +10,7 @@ webSocket.onmessage = function(e) {
 		var results = JSON.parse(e.data);
 		postMessage({
 			type: "RESULTS",
-			timestamp: timestamp,
+			clientTimestamp: timestamp,
 			data: e.data
 		});
 		return;
@@ -27,6 +27,7 @@ webSocket.onerror = function(msgEvent) {
 onmessage = function(e) {
 	switch (e.data.type) {
 	case "START":
+		e.data.clientStart = Date.now();
 		webSocket.send(JSON.stringify(e.data));
 	}
 }
