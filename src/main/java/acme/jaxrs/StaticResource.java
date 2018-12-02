@@ -28,6 +28,7 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -43,17 +44,17 @@ import org.jboss.logging.Logger;
 public class StaticResource {
 	@Inject
 	private Logger log;
-	@Inject
+	@Context
 	private ServletContext servletCtx;
 
 	@GET
 	@Produces(MediaType.TEXT_HTML)
 	public Response get() {
-		return get(Paths.get("/index.html"));
+		return get(Paths.get("index.html"));
 	}
 
 	@GET
-	@Path("{path:.*}")
+	@Path("{path:.{1,50}}")
 	@Produces({ "text/css", "application/javascript", "image/png", APPLICATION_SVG_XML, "image/x-icon" })
 	public Response get(@PathParam("path") java.nio.file.Path path) {
 		this.log.infof("Static resource requested: %s", path);

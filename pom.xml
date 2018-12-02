@@ -49,6 +49,12 @@
 			<version>1.0</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.google.code.findbugs</groupId>
+			<artifactId>jsr305</artifactId>
+			<version>3.0.1</version>
+		</dependency>
+
 
 		<!-- Test Dependencies -->
 
@@ -65,10 +71,16 @@
 			<version>2.15.0</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-jaxrs</artifactId>
+			<version>3.0.24.Final</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
-	    <finalName>${buildFinalName}</finalName>
+		<finalName>${buildFinalName}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>io.thorntail</groupId>

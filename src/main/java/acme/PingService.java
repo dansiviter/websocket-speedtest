@@ -50,7 +50,7 @@ public class PingService {
 	@Inject
 	private Logger log;
 	@Resource
-	private ManagedScheduledExecutorService service;
+	private ManagedScheduledExecutorService executor;
 
 	private Basic basic;
 
@@ -67,7 +67,7 @@ public class PingService {
 		this.warmUpCycles = warmUpCycles;
 		this.cycles = cycles;
 
-		this.future = this.service.scheduleAtFixedRate(this::sendPing, 0, 250, MILLISECONDS);
+		this.future = this.executor.scheduleAtFixedRate(this::sendPing, 0, 250, MILLISECONDS);
 	}
 
 	private void sendPing() {
