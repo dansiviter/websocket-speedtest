@@ -66,7 +66,6 @@ class App extends Component {
 				var results = JSON.parse(e.data.data);
 				var avgRtt = Math.round(results.avgRtt / 1000000) // nanos
 				var jitter = Math.round(results.jitter / 1000000) // nanos
-				var serverTimestamp = new Date(results.timestamp);
 				console.log('RTT=' + avgRtt + 'ms, Jitter=' + jitter + 'ms');
 				this.setState({
 					avgRtt: avgRtt,
