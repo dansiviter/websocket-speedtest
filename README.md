@@ -3,6 +3,6 @@
 
 # WebSocket Speed Test #
 
-A little java app to perform some calculations on the websocket connection between browser and server.
+A little Java, React and Material UI app to perform some calculations on the websocket connection between browser and server.
 
 <img src="images/screenshot.png" alt="Echo UI" width="550"/>
