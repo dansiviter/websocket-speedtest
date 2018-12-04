@@ -42,6 +42,11 @@
 			<groupId>io.thorntail</groupId>
 			<artifactId>microprofile-openapi</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>io.thorntail</groupId>
+			<artifactId>thorntail-runner</artifactId>
+			<version>${thorntail.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.eclipse</groupId>
