@@ -6,6 +6,6 @@ RUN mvn -B -f /usr/src/app/pom.xml clean package -DbuildFinalName=websocket-spee
 RUN echo "Test Coverage Total: $(cat /usr/src/app/target/site/jacoco/index.html | grep -oP 'Total.*?\K([0-9]{1,3})%')"
 
 FROM openjdk:8-alpine
-COPY --from=build /usr/src/app/target/websocket-speedtest.war /usr/app/ 
+COPY --from=build /usr/src/app/target/websocket-speedtest-thorntail.jar /usr/app/ 
 EXPOSE 8080  
-ENTRYPOINT ["java","-jar","/usr/app/websocket-speedtest.war"] 
+ENTRYPOINT ["java", "-Djava.net.preferIPv4Stack=true", "-jar", "/usr/app/websocket-speedtest-thorntail.jar"] 
