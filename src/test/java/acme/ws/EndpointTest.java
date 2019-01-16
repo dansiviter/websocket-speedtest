@@ -143,12 +143,14 @@ public class EndpointTest {
 		final PongMessage msg = mock(PongMessage.class);
 		final Throwable t = new IllegalStateException("Agggghhhh!");
 		final Basic basic = mock(Basic.class);
+		when(this.session.isOpen()).thenReturn(true);
 		when(this.session.getBasicRemote()).thenReturn(basic);
 
 		this.endpoint.onError(session, t);
 
 		verify(this.session).getId();
 		verify(this.log).warnf("Error! [sessionId=%s,msg=%s]", "ABC123", t.getMessage(), t);
+		verify(this.session).isOpen();
 		verify(this.session).getBasicRemote();
 		verify(basic).sendText("ERROR: " + t.getMessage());
 		verifyNoMoreInteractions(msg, basic);

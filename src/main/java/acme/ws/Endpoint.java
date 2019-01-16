@@ -104,7 +104,9 @@ public class Endpoint {
 	public void onError(Session session, Throwable t) {
 		this.log.warnf("Error! [sessionId=%s,msg=%s]", session.getId(), t.getMessage(), t);
 		try {
-			session.getBasicRemote().sendText("ERROR: " + t.getMessage());
+			if (session.isOpen()) {
+				session.getBasicRemote().sendText("ERROR: " + t.getMessage());
+			}
 		} catch (IOException e) {
 			this.log.error(e.getMessage(), e);
 		}
