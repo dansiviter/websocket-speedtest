@@ -1,0 +1,6 @@
+thorntail:
+  undertow:
+    servlet-containers:
+      default:
+        websockets-setting:
+          per-message-deflate: true
