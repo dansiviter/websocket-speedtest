@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 
@@ -73,7 +74,7 @@ public class StaticResourceTest {
 	}
 
 	@Test
-	public void get() throws URISyntaxException {
+	public void get() throws URISyntaxException, UnsupportedEncodingException {
 		final InputStream is = new ByteArrayInputStream("Hello world!".getBytes());
 		when(this.servletCtx.getResourceAsStream(any())).thenReturn(is);
 		when(this.servletCtx.getMimeType(any())).thenReturn("text/html");
@@ -92,7 +93,7 @@ public class StaticResourceTest {
 	}
 
 	@Test
-	public void get_path() throws URISyntaxException {
+	public void get_path() throws URISyntaxException, UnsupportedEncodingException {
 		final InputStream is = new ByteArrayInputStream("Hello world!".getBytes());
 		when(this.servletCtx.getResourceAsStream(any())).thenReturn(is);
 		when(this.servletCtx.getMimeType(any())).thenReturn("text/html");
