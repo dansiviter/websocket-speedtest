@@ -18,16 +18,15 @@ package acme;
 import static acme.ReflectionUtil.set;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.concurrent.ScheduledFuture;
 
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.websocket.EncodeException;
@@ -37,14 +36,18 @@ import javax.websocket.Session;
 
 import org.jboss.logging.Logger;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.mockito.stubbing.Answer;
+
+import com.google.common.collect.ImmutableMap;
+
+import acme.api.ControlMessage;
+import acme.api.ControlMessage.Type;
 
 /**
  * Unit test for {@link PingService}.
@@ -68,45 +71,61 @@ public class PingServiceTest {
 	@InjectMocks
 	private PingService pingService;
 
+	@Before
+	public void before() {
+		when(this.session.getId()).thenReturn("ABC123");
+	}
+
 	@Test
 	public void start() throws IllegalArgumentException, IOException {
+		when(this.session.getId()).thenReturn("ABC123");
 		when(this.session.getBasicRemote()).thenReturn(this.basic);
-		when(this.executor.scheduleAtFixedRate(any(), anyLong(), anyLong(), any())).thenAnswer(new Answer<ScheduledFuture<?>>() {
-			@Override
-			public ScheduledFuture<?> answer(InvocationOnMock invoc) throws Throwable {
-				final Runnable run = invoc.getArgument(0);
-				run.run();
-				return null;
-			}
-		});
 
-		this.pingService.start(session, 1, 2);
+		ControlMessage controlMsg = new ControlMessage(
+				Type.START,
+				ImmutableMap.of("delay", 250, "warmUp", 10, "cycles", 10));
 
+		this.pingService.start(session, controlMsg);
+
+		verify(this.session, times(2)).getId();
+		verify(this.log).infof("Starting ping... [sessionId=%s,warmupCycles=%d,cycles=%d,delay=%d]", "ABC123", 10, 10, 250);
 		verify(this.session).getBasicRemote();
-		verify(this.executor).scheduleAtFixedRate(any(), eq(0L), eq(250L), eq(MILLISECONDS));
+		verify(this.log).debugf("Sending ping... [sessionId=%s,sent=%d]", "ABC123", 0);
 		verify(this.basic).sendPing(any());
 	}
 
 	@Test
-	public void onPing() {
+	public void on_pong() {
+		final ControlMessage controlMsg = new ControlMessage(
+				Type.START,
+				ImmutableMap.of("delay", 250, "warmUp", 10, "cycles", 10));
+		set(this.pingService, "controlMsg", controlMsg);
 		final PongMessage msg = mock(PongMessage.class);
-		when(msg.getApplicationData()).thenReturn((ByteBuffer) ByteBuffer.allocate(8).putLong(1L).flip());
 
-		this.pingService.onPing(msg, 2L);
+		this.pingService.on(msg, 2L);
 
-		verify(msg).getApplicationData();
+		verify(this.session).getId();
+		verify(this.log).debugf("Recieved pong... [sessionId=%s]", "ABC123");
+		verify(this.executor).schedule(any(Runnable.class), eq(250L), eq(MILLISECONDS));
 		verifyNoMoreInteractions(msg);
 	}
 
 	@Test
-	public void onPing_complete() throws IOException, EncodeException {
-		set(this.pingService, "cycles", 1);
+	public void on_pong_complete() throws IOException, EncodeException {
+		final ControlMessage controlMsg = new ControlMessage(
+				Type.START,
+				ImmutableMap.of("delay", 250, "warmUp", 10, "cycles", 10));
+		set(this.pingService, "controlMsg", controlMsg);
+		set(this.pingService, "pingsSent", 20);
 		final PongMessage msg = mock(PongMessage.class);
 		when(msg.getApplicationData()).thenReturn((ByteBuffer) ByteBuffer.allocate(8).putLong(1L).flip());
 
-		this.pingService.onPing(msg, 2L);
+		this.pingService.on(msg, 2L);
 
+		verify(this.session, times(2)).getId();
+		verify(this.log).debugf("Recieved pong... [sessionId=%s]", "ABC123");
 		verify(msg).getApplicationData();
+		verify(this.log).debugf("Completed. [sessionId=%s]", "ABC123");
 		verify(this.basic).sendObject(any());
 		verifyNoMoreInteractions(msg);
 	}

@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ScheduledFuture;
 
 import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
@@ -35,6 +34,7 @@ import javax.websocket.Session;
 
 import org.jboss.logging.Logger;
 
+import acme.api.ControlMessage;
 import acme.api.Results;
 
 /**
@@ -45,58 +45,129 @@ import acme.api.Results;
  */
 @Dependent
 public class PingService {
-	private static final ByteBuffer EMPTY_BUF = ByteBuffer.allocate(0);
-
 	@Inject
 	private Logger log;
 	@Resource
 	private ManagedScheduledExecutorService executor;
 
-	private Basic basic;
+	private final List<Integer> pingResults = new ArrayList<>();
 
-	private int warmUpCycles;
-	private int cycles;
+	private ControlMessage controlMsg;
+	private Session session;
+	private Basic basic;
 	private int pingsSent;
 
-	private List<Integer> pingResults = new ArrayList<>();
+	/**
+	 * 
+	 * @param session
+	 * @param warmUpCycles
+	 * @param cycles
+	 */
+	public void start(Session session, ControlMessage controlMsg) {
+		log.infof("Starting ping... [sessionId=%s,warmupCycles=%d,cycles=%d,delay=%d]",
+			session.getId(),
+			Prop.WARM_UP_CYCLES.get(controlMsg).intValue(),
+			Prop.CYCLES.get(controlMsg).intValue(),
+			Prop.DELAY.get(controlMsg).intValue());
 
-	private ScheduledFuture<?> future;
+		this.controlMsg = controlMsg;
 
-	public void start(Session session, int warmUpCycles, int cycles) {
+		this.session = session;
 		this.basic = session.getBasicRemote();
-		this.warmUpCycles = warmUpCycles;
-		this.cycles = cycles;
 
-		this.future = this.executor.scheduleAtFixedRate(this::sendPing, 0, 250, MILLISECONDS);
+		sendPing();
 	}
 
+	/**
+	 * 
+	 */
 	private void sendPing() {
+		log.debugf("Sending ping... [sessionId=%s,sent=%d]", this.session.getId(), this.pingsSent);
 		try {
-			final ByteBuffer buf = pingsSent < warmUpCycles ? EMPTY_BUF : buf(nanoTime());
-			this.basic.sendPing(buf);
+			this.basic.sendPing(buf(nanoTime()));
 			pingsSent++;
-
-			if (pingsSent > warmUpCycles + cycles) {
-				this.future.cancel(false);
-			}
 		} catch (IOException e) {
 			this.log.warn("Aggggh!", e);
 		}
 	}
 
-	private static ByteBuffer buf(Long l) {
-		return (ByteBuffer) ByteBuffer.allocate(Long.BYTES).putLong(l).flip();
-	}
+	/**
+	 * 
+	 * @param msg
+	 * @param nanos
+	 */
+	public void on(PongMessage msg, long nanos) {
+		this.log.debugf("Recieved pong... [sessionId=%s]", this.session.getId());
 
-	public void onPing(PongMessage msg, long nanos) {
-		this.pingResults.add((int) (nanos - msg.getApplicationData().getLong()));
+		if (!isWarmUp(this.controlMsg, pingsSent)) {
+			final long startNanos = msg.getApplicationData().getLong();
+			this.pingResults.add((int) (nanos - startNanos));
+		}
 
-		if (this.pingResults.size() == this.cycles) {
+		if (isDone(this.controlMsg, this.pingsSent)) {
+			this.log.debugf("Completed. [sessionId=%s]", this.session.getId());
 			try {
 				this.basic.sendObject(new Results(this.pingResults));
 			} catch (IOException | EncodeException e) {
 				this.log.warn("Aggggh!", e);
 			}
+		} else {
+			this.executor.schedule(this::sendPing, Prop.DELAY.getInt(this.controlMsg), MILLISECONDS);
+		}
+	}
+
+	/**
+	 * 
+	 * @param l
+	 * @return
+	 */
+	private static ByteBuffer buf(Long l) {
+		return (ByteBuffer) ByteBuffer.allocate(Long.BYTES).putLong(l).rewind();
+	}
+
+	/**
+	 * 
+	 * @param session
+	 * @param pingsSent
+	 * @return
+	 */ 
+	private static boolean isWarmUp(ControlMessage msg, int pingsSent) {
+		final int warmUpCycles = Prop.WARM_UP_CYCLES.getInt(msg);
+		return pingsSent <= warmUpCycles;
+	}
+
+	/**
+	 * 
+	 * @param session
+	 * @param pingsSent
+	 * @return
+	 */
+	private static boolean isDone(ControlMessage msg, int pingsSent) {
+		final int warmUpCycles = Prop.WARM_UP_CYCLES.getInt(msg);
+		final int cycles = Prop.CYCLES.getInt(msg);
+		return pingsSent >= warmUpCycles + cycles;
+	}
+
+	/**
+	 * 
+	 */
+	private enum Prop {
+		WARM_UP_CYCLES("warmUp"),
+		CYCLES("cycles"),
+		DELAY("delay");
+
+		private final String param;
+
+		Prop(String param) {
+			this.param = param;
+		}
+
+		Number get(ControlMessage msg) {
+			return msg.numParam(this.param);
+		}
+
+		int getInt(ControlMessage msg) {
+			return get(msg).intValue();
 		}
 	}
 }

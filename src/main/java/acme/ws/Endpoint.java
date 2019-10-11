@@ -62,15 +62,14 @@ public class Endpoint {
 	}
 
 	@OnMessage
-	public void onControl(Session session, ControlMessage msg) {
+	public void on(Session session, ControlMessage msg) {
 		this.log.infof("Control received. [sessionId=%s,type=%s]", session.getId(), msg.type());
 		switch (msg.type()) {
 		case START: {
 			session.getUserProperties().clear();
 			pingService(session).start(
 					session,
-					msg.numParam("warmUp").intValue(),
-					msg.numParam("cycles").intValue());
+					msg);
 			break;
 		}
 		case FINISH: {
@@ -83,26 +82,20 @@ public class Endpoint {
 	}
 
 	@OnMessage
-	public void onBinary(Session session, byte[] msg, boolean last) {
+	public void on(Session session, byte[] msg, boolean last) {
 		this.log.infof("Binary received. [sessionId=%s,msg=%s,last=%s]", session.getId(), msg, last);
 	}
 
 	@OnMessage
-	public void onPing(Session session, PongMessage msg) {
-		if (this.log.isTraceEnabled()) {
-			this.log.tracef("Ping received. [sessionId=%s,msg=%s]", session.getId(), msg);
-		}
-		if (msg.getApplicationData().capacity() == 0) { // warmup, ignore
-			return;
-		}
-
+	public void on(Session session, PongMessage msg) {
 		final long nanos = System.nanoTime();
-		pingService(session).onPing(msg, nanos);
+		this.log.debugf("Pong received. [sessionId=%s,data=%s]", session.getId(), msg.getApplicationData());
+		pingService(session).on(msg, nanos);
 	}
 
 	@OnError
 	public void onError(Session session, Throwable t) {
-		this.log.warnf("Error! [sessionId=%s,msg=%s]", session.getId(), t.getMessage(), t);
+		this.log.warnf(t, "Error! [sessionId=%s,msg=%s]", session.getId(), t.getMessage());
 		try {
 			if (session.isOpen()) {
 				session.getBasicRemote().sendText("ERROR: " + t.getMessage());

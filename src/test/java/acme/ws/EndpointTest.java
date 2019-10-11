@@ -19,6 +19,8 @@ import static acme.api.ControlMessage.Type.START;
 import static javax.websocket.CloseReason.CloseCodes.CANNOT_ACCEPT;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -94,7 +96,6 @@ public class EndpointTest {
 	public void onControl() {
 		when(this.session.getId()).thenReturn("ABC123");
 		final Map<String, Object> params = new HashMap<>();
-		params.put("clientStart", 1L);
 		params.put("warmUp", 1);
 		params.put("cycles", 2);
 		final ControlMessage msg = new ControlMessage(START, params);
@@ -102,20 +103,20 @@ public class EndpointTest {
 		when(session.getUserProperties()).thenReturn(new HashMap<String, Object>());
 		when(this.pingServiceProvider.get()).thenReturn(this.pingService);
 
-		this.endpoint.onControl(session, msg);
+		this.endpoint.on(session, msg);
 
 		verify(this.session).getId();
 		verify(this.log).infof("Control received. [sessionId=%s,type=%s]", "ABC123", START);
 		verify(session, times(2)).getUserProperties();
 		verify(this.pingServiceProvider).get();
-		verify(this.pingService).start(this.session, 1, 2);
+		verify(this.pingService).start(this.session, msg);
 	}
 
 	@Test
 	public void onBinary() {
 		when(this.session.getId()).thenReturn("ABC123");
 		final byte[] payload = new byte[0];
-		this.endpoint.onBinary(session, payload, true);
+		this.endpoint.on(session, payload, true);
 
 		verify(this.session).getId();
 		verify(this.log).infof("Binary received. [sessionId=%s,msg=%s,last=%s]", "ABC123", payload, true);
@@ -123,17 +124,21 @@ public class EndpointTest {
 
 	@Test
 	public void onPing() {
-		when(this.log.isTraceEnabled()).thenReturn(true);
 		when(this.session.getId()).thenReturn("ABC123");
 		final PongMessage msg = mock(PongMessage.class);
-		when(msg.getApplicationData()).thenReturn(ByteBuffer.wrap(new byte[0]));
+		final ByteBuffer buf = ByteBuffer.wrap(new byte[0]);
+		when(msg.getApplicationData()).thenReturn(buf);
+		final Map<String, Object> map = new HashMap<>();
+		map.put("service", this.pingService);
+		when(session.getUserProperties()).thenReturn(map);
 
-		this.endpoint.onPing(session, msg);
+		this.endpoint.on(this.session, msg);
 
-		verify(this.log).isTraceEnabled();
 		verify(this.session).getId();
-		verify(this.log).tracef("Ping received. [sessionId=%s,msg=%s]", "ABC123", msg);
+		verify(this.log).debugf("Pong received. [sessionId=%s,data=%s]", "ABC123", buf);
 		verify(msg).getApplicationData();
+		verify(this.session).getUserProperties();
+		verify(this.pingService).on(eq(msg), anyLong());
 		verifyNoMoreInteractions(msg);
 	}
 
@@ -149,7 +154,7 @@ public class EndpointTest {
 		this.endpoint.onError(session, t);
 
 		verify(this.session).getId();
-		verify(this.log).warnf("Error! [sessionId=%s,msg=%s]", "ABC123", t.getMessage(), t);
+		verify(this.log).warnf(t, "Error! [sessionId=%s,msg=%s]", "ABC123", t.getMessage());
 		verify(this.session).isOpen();
 		verify(this.session).getBasicRemote();
 		verify(basic).sendText("ERROR: " + t.getMessage());

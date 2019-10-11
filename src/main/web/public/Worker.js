@@ -1,9 +1,9 @@
-var webSocket = new WebSocket("ws://" + location.host + "/ws");
+var webSocket;
 
-webSocket.onopen = function(msgEvent) { 
+onWsOpen = e => {
 	postMessage({ type: "OPEN" });
 }
-webSocket.onmessage = function(e) {
+onWsMessage = e => {
 	var timestamp = Date.now();
 
 	if (typeof e.data === "string") {
@@ -17,17 +17,37 @@ webSocket.onmessage = function(e) {
 	}
 	postMessage({ type: "MESSAGE", data: e.data })
 }
-webSocket.onclose = function(msgEvent) {
+onWsClose = e => {
 	postMessage({ type: "CLOSE" });
 }
-webSocket.onerror = function(msgEvent) { 
+onWsError = e => {
 	postMessage({ type: "ERROR" });
 }
 
-onmessage = function(e) {
+onmessage = e => {
 	switch (e.data.type) {
-	case "START":
+	case "START": {
 		e.data.clientStart = Date.now();
 		webSocket.send(JSON.stringify(e.data));
+		break;
+	}
+	case "RECONNECT": {
+		reconnect();
+		break;
+	}
 	}
 }
+
+reconnect = () => {
+	if (this.webSocket) {
+		webSocket.close();
+	}
+
+	webSocket = new WebSocket("ws://" + location.host + "/ws");
+	webSocket.onclose = this.onWsClose;
+	webSocket.onerror = this.onWsError;
+	webSocket.onmessage = this.onWsMessage;
+	webSocket.onopen = this.onWsOpen;
+}
+
+reconnect();

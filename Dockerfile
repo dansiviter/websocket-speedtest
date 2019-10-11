@@ -1,4 +1,3 @@
-# THORN-2229
 FROM maven:3.6-jdk-8 AS build  
 COPY src /usr/src/app/src 
 COPY pom.xml /usr/src/app 
