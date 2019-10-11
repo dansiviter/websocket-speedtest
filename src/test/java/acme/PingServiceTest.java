@@ -34,7 +34,6 @@ import javax.websocket.PongMessage;
 import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
 
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -60,7 +59,7 @@ public class PingServiceTest {
 	public MockitoRule mockito = MockitoJUnit.rule();
 
 	@Mock
-	private Logger log;
+	private Log log;
 	@Mock
 	private ManagedScheduledExecutorService executor;
 	@Mock

@@ -31,7 +31,6 @@ import java.nio.file.Paths;
 
 import javax.servlet.ServletContext;
 
-import org.jboss.logging.Logger;
 import org.jboss.resteasy.core.Dispatcher;
 import org.jboss.resteasy.mock.MockHttpRequest;
 import org.jboss.resteasy.mock.MockHttpResponse;
@@ -45,6 +44,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import acme.Log;
+
 /**
  * Unit test for {@link StaticResource}.
  * 
@@ -56,7 +57,7 @@ public class StaticResourceTest {
 	public MockitoRule mockito = MockitoJUnit.rule();
 
 	@Mock
-	private Logger log;
+	private Log log;
 	@Mock
 	private ServletContext servletCtx;
 
@@ -87,7 +88,7 @@ public class StaticResourceTest {
 		assertEquals(OK.getStatusCode(), response.getStatus());
 		assertEquals("Hello world!", response.getContentAsString());
 
-		verify(this.log).infof("Static resource requested: %s", Paths.get("index.html"));
+		verify(this.log).staticResource(Paths.get("index.html"));
 		verify(this.servletCtx).getResourceAsStream("index.html");
 		verify(this.servletCtx).getMimeType("index.html");
 	}
@@ -106,7 +107,7 @@ public class StaticResourceTest {
 		assertEquals(OK.getStatusCode(), response.getStatus());
 		assertEquals("Hello world!", response.getContentAsString());
 
-		verify(this.log).infof("Static resource requested: %s", Paths.get("foo.html"));
+		verify(this.log).staticResource(Paths.get("foo.html"));
 		verify(this.servletCtx).getResourceAsStream("foo.html");
 		verify(this.servletCtx).getMimeType("foo.html");
 	}

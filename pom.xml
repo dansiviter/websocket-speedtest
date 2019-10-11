@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>acme</groupId>
 	<artifactId>websocket-speedtest</artifactId>
@@ -6,8 +8,10 @@
 	<packaging>war</packaging>
 
 	<properties>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<java.version>11</java.version>
+		<maven.compiler.release>${java.version}</maven.compiler.release>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<thorntail.version>2.5.0.Final</thorntail.version>
@@ -58,6 +62,22 @@
 			<version>3.0.1</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.jboss.logging</groupId>
+			<artifactId>jboss-logging-annotations</artifactId>
+			<version>2.2.0.Final</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.logging</groupId>
+			<artifactId>jboss-logging-processor</artifactId>
+			<version>2.2.0.Final</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+
 
 		<!-- Test Dependencies -->
 
@@ -71,7 +91,7 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>2.15.0</version>
+			<version>3.1.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -161,6 +181,7 @@
 				<version>2.22.2</version>
 				<configuration>
 					<useSystemClassLoader>false</useSystemClassLoader> <!-- SUREFIRE-1588 -->
+					<argLine>--illegal-access=permit</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -168,13 +189,13 @@
 				<artifactId>maven-war-plugin</artifactId>
 				<version>3.2.3</version>
 				<configuration>
-				  <webResources>
-					<resource>
-					  <directory>src/main/web/build</directory>
-					</resource>
-				  </webResources>
+					<webResources>
+						<resource>
+							<directory>src/main/web/build</directory>
+						</resource>
+					</webResources>
 				</configuration>
-			  </plugin>
+			</plugin>
 		</plugins>
 	</build>
 </project>

@@ -30,16 +30,17 @@ import org.jboss.logging.Logger;
  */
 public class LogProducer {
 	@Produces @Dependent
-	public static Logger log(InjectionPoint ip) {
+	public static Log log(InjectionPoint ip) {
 		final Bean<?> bean = ip.getBean();
-		return logger(bean != null ? bean.getBeanClass() : ip.getMember().getDeclaringClass());
+		final Class<?> cls = bean != null ? bean.getBeanClass() : ip.getMember().getDeclaringClass();
+		return log(cls);
 	}
 
 	/**
 	 * @param cls the class to create the logger for.
 	 * @return the logger instance.
 	 */
-	public static Logger logger(Class<?> cls) {
-		return Logger.getLogger(cls);
+	public static Log log(Class<?> cls) {
+		return Logger.getMessageLogger(Log.class, cls.getName());
 	}
 }

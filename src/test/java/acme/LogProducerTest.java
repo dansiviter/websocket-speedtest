@@ -16,6 +16,7 @@
 package acme;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -25,7 +26,6 @@ import java.lang.reflect.Member;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.InjectionPoint;
 
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -53,8 +53,8 @@ public class LogProducerTest {
 
 	@Test
 	public void logger() {
-		final Logger logger = LogProducer.logger(LogProducerTest.class);
-		assertEquals(LogProducerTest.class.getName(), logger.getName());
+		final Log log = LogProducer.log(LogProducerTest.class);
+		assertNotNull(log);
 	}
 
 	@Test
@@ -63,8 +63,8 @@ public class LogProducerTest {
 		when(this.ip.getBean()).thenReturn(this.bean);
 		when(this.bean.getBeanClass()).thenReturn(LogProducerTest.class);
 
-		final Logger logger = LogProducer.log(this.ip);
-		assertEquals(LogProducerTest.class.getName(), logger.getName());
+		final Log log = LogProducer.log(this.ip);
+		assertNotNull(log);
 
 		verify(this.ip).getBean();
 		verify(this.bean).getBeanClass();
@@ -76,8 +76,8 @@ public class LogProducerTest {
 		when(this.ip.getMember()).thenReturn(this.member);
 		when(this.member.getDeclaringClass()).thenReturn((Class) LogProducerTest.class);
 
-		final Logger logger = LogProducer.log(this.ip);
-		assertEquals(LogProducerTest.class.getName(), logger.getName());
+		final Log log = LogProducer.log(this.ip);
+		assertNotNull(log);
 
 		verify(this.ip).getBean();
 		verify(this.ip).getMember();

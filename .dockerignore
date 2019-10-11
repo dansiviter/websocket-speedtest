@@ -1,1 +1,2 @@
-src/main/web/node_modules
+src/main/web/node_modules/
+target/

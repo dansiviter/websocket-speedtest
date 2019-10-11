@@ -32,7 +32,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.jboss.logging.Logger;
+import acme.Log;
 
 /**
  * Resource to serve static page elements.
@@ -43,7 +43,7 @@ import org.jboss.logging.Logger;
 @Path("/")
 public class StaticResource {
 	@Inject
-	private Logger log;
+	private Log log;
 	@Context
 	private ServletContext servletCtx;
 
@@ -57,7 +57,7 @@ public class StaticResource {
 	@Path("{path:.{1,50}}")
 	@Produces({ "text/css", "application/javascript", "image/png", APPLICATION_SVG_XML, "image/x-icon" })
 	public Response get(@PathParam("path") java.nio.file.Path path) {
-		this.log.infof("Static resource requested: %s", path);
+		this.log.staticResource(path);
 		final InputStream in = this.servletCtx.getResourceAsStream(path.toString());
 		if (in == null) {
 			throw new NotFoundException();

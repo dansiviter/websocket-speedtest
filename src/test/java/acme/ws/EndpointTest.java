@@ -39,7 +39,6 @@ import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,6 +47,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import acme.Log;
 import acme.PingService;
 import acme.api.ControlMessage;
 
@@ -62,7 +62,7 @@ public class EndpointTest {
 	public MockitoRule mockito = MockitoJUnit.rule();
 
 	@Mock
-	private Logger log;
+	private Log log;
 	@Mock
 	private Provider<PingService> pingServiceProvider;
 	@Mock

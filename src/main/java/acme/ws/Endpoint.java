@@ -30,8 +30,7 @@ import javax.websocket.PongMessage;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.jboss.logging.Logger;
-
+import acme.Log;
 import acme.PingService;
 import acme.api.ControlMessage;
 
@@ -50,7 +49,7 @@ public class Endpoint {
 	private static final String SERVICE = "service";
 
 	@Inject
-	private Logger log;
+	private Log log;
 	@Inject
 	private Provider<PingService> pingService;
 	@Resource

@@ -32,8 +32,6 @@ import javax.websocket.PongMessage;
 import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
 
-import org.jboss.logging.Logger;
-
 import acme.api.ControlMessage;
 import acme.api.Results;
 
@@ -46,7 +44,7 @@ import acme.api.Results;
 @Dependent
 public class PingService {
 	@Inject
-	private Logger log;
+	private Log log;
 	@Resource
 	private ManagedScheduledExecutorService executor;
 
