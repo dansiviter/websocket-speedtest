@@ -181,7 +181,7 @@
 				<version>2.22.2</version>
 				<configuration>
 					<useSystemClassLoader>false</useSystemClassLoader> <!-- SUREFIRE-1588 -->
-					<argLine>--illegal-access=permit</argLine>
+					<argLine>@{argLine} --illegal-access=permit</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
