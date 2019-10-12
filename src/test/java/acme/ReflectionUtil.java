@@ -58,7 +58,7 @@ public enum ReflectionUtil { ;
 				throw new IllegalArgumentException(
 						String.format("Unable to find '%s' on '%s'!", name, source.getClass()));
 			}
-			setAccessible(field);
+			setAccessible(field, source);
 			return (T) field.get(source);
 		} catch (IllegalAccessException ex) {
 			throw new IllegalStateException(String.format(
@@ -82,7 +82,7 @@ public enum ReflectionUtil { ;
 				throw new IllegalArgumentException(
 						String.format("Unable to find '%s' on '%s'!", name, sourceCls));
 			}
-			setAccessible(field);
+			setAccessible(field, null);
 			return (T) field.get(null);
 		} catch (IllegalAccessException ex) {
 			throw new IllegalStateException(String.format(
@@ -101,20 +101,20 @@ public enum ReflectionUtil { ;
 	}
 
 	/**
-	 * @param source the source object.
+	 * @param target the target object.
 	 * @param name the name of the field.
 	 * @param type the field type. This can {@code null}.
 	 * @param value the value to set on the field.
 	 * @throws IllegalStateException if there is an issue in accessing.
 	 */
-	public static void set(@Nonnull Object source, @Nonnull String name, Class<?> type, Object value) {
+	public static void set(@Nonnull Object target, @Nonnull String name, Class<?> type, Object value) {
 		try {
-			final Field field = findField(source.getClass(), name, type);
+			final Field field = findField(target.getClass(), name, type);
 			if (field == null) {
-				throw new IllegalArgumentException("Unable to find '" + name + "' on '" + source.getClass() + "'!");
+				throw new IllegalArgumentException("Unable to find '" + name + "' on '" + target.getClass() + "'!");
 			}
-			setAccessible(field);
-			field.set(source, value);
+			setAccessible(field, target);
+			field.set(target, value);
 		} catch (IllegalAccessException ex) {
 			throw new IllegalStateException(String.format(
 					"Unexpected reflection exception - %s", ex.getClass().getName()), ex);
@@ -155,7 +155,7 @@ public enum ReflectionUtil { ;
 	@SuppressWarnings("unchecked")
 	public static <T> T invoke(@Nonnull Object source, @Nonnull Method method, Object... args) {
 		try {
-			setAccessible(method);
+			setAccessible(method, source);
 			return (T) method.invoke(source, args);
 		} catch (IllegalAccessException | InvocationTargetException ex) {
 			throw new IllegalStateException(String.format(
@@ -205,12 +205,13 @@ public enum ReflectionUtil { ;
 
 	/**
 	 * @param field the field to set as accessible.
+	 * @param obj the object instance or {@code null} if {@code static} field.
 	 */
-	public static void setAccessible(@Nonnull Field field) {
+	public static void setAccessible(@Nonnull Field field, Object obj) {
 		if ((!Modifier.isPublic(field.getModifiers()) ||
 				!Modifier.isPublic(field.getDeclaringClass().getModifiers()) ||
 				Modifier.isFinal(field.getModifiers())) &&
-				!field.isAccessible())
+				!field.canAccess(obj))
 		{
 			field.setAccessible(true);
 		}
@@ -218,12 +219,13 @@ public enum ReflectionUtil { ;
 
 	/**
 	 * @param method the method to set as accessible.
+	 * @param obj the object instance or {@code null} if {@code static} method.
 	 */
-	public static void setAccessible(@Nonnull Method method) {
+	public static void setAccessible(@Nonnull Method method, Object obj) {
 		if ((!Modifier.isPublic(method.getModifiers()) ||
 				!Modifier.isPublic(method.getDeclaringClass().getModifiers()) ||
 				Modifier.isFinal(method.getModifiers())) &&
-				!method.isAccessible())
+				!method.canAccess(obj))
 		{
 			method.setAccessible(true);
 		}
