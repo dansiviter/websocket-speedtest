@@ -8,5 +8,5 @@ A little Java, React and Material UI app to perform some calculations on the web
 To run, execute:
 
 ```
-docker run -p 8080 docker run -p 8080:8080 registry.gitlab.com/dansiviter/websocket-speedtest/master:<commit-sha>
+docker run -p 8080:8080 registry.gitlab.com/dansiviter/websocket-speedtest/master:<commit-sha>
 ```
