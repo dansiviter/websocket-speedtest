@@ -16,6 +16,6 @@ import org.jboss.logging.annotations.MessageLogger;
 @MessageLogger(projectCode = "WS")
 public interface Log extends BasicLogger {
 	@LogMessage
-	@Message(value = "Static resource requested: %s")
+	@Message("Static resource requested: %s")
 	void staticResource(Path path);
 }
