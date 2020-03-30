@@ -14,7 +14,7 @@ FROM adoptopenjdk/openjdk11:alpine-jre
 
 WORKDIR /usr/app/
 COPY --from=build /helidon/target/websocket-speedtest-*.jar ./speedtest.jar
-COPY --from=build /helidon/target/libs ./libs
+COPY --from=build /helidon/target/dependency ./lib
 
 RUN adduser -D helidon
 USER helidon
