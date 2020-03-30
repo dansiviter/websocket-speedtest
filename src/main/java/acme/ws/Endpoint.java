@@ -17,8 +17,6 @@ package acme.ws;
 
 import java.io.IOException;
 
-import javax.annotation.Resource;
-import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.websocket.CloseReason;
@@ -35,12 +33,12 @@ import acme.PingService;
 import acme.api.ControlMessage;
 
 /**
- * 
+ *
  * @author Daniel Siviter
  * @since v1.0 [6 Aug 2018]
  */
 @ServerEndpoint(
-		value = "/ws",
+		value = "/v1",
 		subprotocols = "speed-test",
 		decoders = { ControlMessageEncoding.class, FileEncoding.class },
 		encoders = { ControlMessageEncoding.class, FileEncoding.class, ResultsEncoder.class }
@@ -52,8 +50,6 @@ public class Endpoint {
 	private Log log;
 	@Inject
 	private Provider<PingService> pingService;
-	@Resource
-	private ManagedScheduledExecutorService executor;
 
 	@OnOpen
 	public void onOpen(Session session) {
@@ -71,10 +67,8 @@ public class Endpoint {
 					msg);
 			break;
 		}
-		case FINISH: {
-			// return the results
-			break;
-		}
+		case FINISH:
+			break;  // return the results
 		default:
 			throw new IllegalArgumentException("Unknown type!");
 		}
@@ -110,12 +104,12 @@ public class Endpoint {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param session
 	 * @return
 	 */
 	private PingService pingService(Session session) {
 		return PingService.class.cast(
-				session.getUserProperties().computeIfAbsent(SERVICE, (k) -> this.pingService.get()));
+				session.getUserProperties().computeIfAbsent(SERVICE, k -> this.pingService.get()));
 	}
 }

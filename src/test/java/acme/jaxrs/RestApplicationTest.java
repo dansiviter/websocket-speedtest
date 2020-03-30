@@ -15,24 +15,24 @@
  */
 package acme.jaxrs;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.ws.rs.ApplicationPath;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for {@link RestApplication}.
- * 
+ *
  * @author Daniel Siviter
  * @since v1.0 [13 Nov 2018]
  */
 public class RestApplicationTest {
 	private RestApplication restApplication;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		this.restApplication = new RestApplication();
 	}

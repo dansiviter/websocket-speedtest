@@ -16,11 +16,11 @@
 package acme.api;
 
 import static java.lang.Math.abs;
-import static java.lang.Math.round;
 import static java.math.BigDecimal.valueOf;
 import static java.math.RoundingMode.HALF_UP;
 import static java.util.Collections.unmodifiableList;
 
+import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Collection;
 import java.util.List;
@@ -35,8 +35,8 @@ public class Results {
 	private static final MathContext MC = new MathContext(2, HALF_UP);
 
 	private final List<Integer> pings;
-	private final long avgRtt;
-	private final long jitter;
+	private final BigDecimal avgRtt;
+	private final BigDecimal jitter;
 
 	public Results(List<Integer> pings) {
 		this.pings = unmodifiableList(pings);
@@ -54,14 +54,14 @@ public class Results {
 	/**
 	 * @return the average Round Trip Time (RTT) in nanos.
 	 */
-	public long getAvgRtt() {
+	public BigDecimal getAvgRtt() {
 		return avgRtt;
 	}
 
 	/**
 	 * @return the calculated network jitter in nanos.
 	 */
-	public long getJitter() {
+	public BigDecimal getJitter() {
 		return jitter;
 	}
 
@@ -73,8 +73,8 @@ public class Results {
 	 * @param values
 	 * @return
 	 */
-	private static long mean(Collection<Integer> values) {
-		return round(values.stream().mapToInt(Integer::intValue).average().getAsDouble());
+	private static BigDecimal mean(Collection<Integer> values) {
+		return BigDecimal.valueOf(values.stream().mapToInt(Integer::intValue).average().getAsDouble()).round(MC);
 	}
 
 	/**
@@ -83,14 +83,14 @@ public class Results {
 	 * @param values
 	 * @return
 	 */
-	private static long calcJitter(List<Integer> values) {
+	private static BigDecimal calcJitter(List<Integer> values) {
 		if (values.size() <= 1) {
-			return 0L;
+			return BigDecimal.ZERO;
 		}
 		double jitter = 0;
 		for (int i = 1; i < values.size(); i++) {
 			jitter = abs(values.get(i - 1) - values.get(i));
 		}
-		return valueOf(jitter).divide(valueOf(values.size() - 1), MC).longValue();
+		return valueOf(jitter).divide(valueOf(values.size() - 1), MC);
 	}
 }

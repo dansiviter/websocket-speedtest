@@ -17,8 +17,8 @@ package acme.ws;
 
 import static acme.api.ControlMessage.Type.START;
 import static javax.websocket.CloseReason.CloseCodes.CANNOT_ACCEPT;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -39,13 +39,12 @@ import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import acme.Log;
 import acme.PingService;
@@ -53,14 +52,12 @@ import acme.api.ControlMessage;
 
 /**
  * Unit tests for {@link Endpoint}.
- * 
+ *
  * @author Daniel Siviter
  * @since v1.0 [1 Dec 2018]
  */
+@ExtendWith(MockitoExtension.class)
 public class EndpointTest {
-	@Rule
-	public MockitoRule mockito = MockitoJUnit.rule();
-
 	@Mock
 	private Log log;
 	@Mock
@@ -76,7 +73,7 @@ public class EndpointTest {
 	@Test
 	public void typeAnnotations() {
 		final ServerEndpoint serverEndpoint = Endpoint.class.getAnnotation(ServerEndpoint.class);
-		assertEquals("/ws", serverEndpoint.value());
+		assertEquals("/v1", serverEndpoint.value());
 		assertArrayEquals(new String[] { "speed-test" }, serverEndpoint.subprotocols());
 		assertArrayEquals(new Class[] { ControlMessageEncoding.class, FileEncoding.class }, serverEndpoint.decoders());
 		assertArrayEquals(new Class[] { ControlMessageEncoding.class, FileEncoding.class, ResultsEncoder.class }, serverEndpoint.encoders());
@@ -171,7 +168,7 @@ public class EndpointTest {
 		verify(this.log).infof("Connection closed. [sessionId=%s,reasonCode=%s]", "ABC123", CANNOT_ACCEPT);
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		verifyNoMoreInteractions(this.log, this.pingServiceProvider, this.session, this.pingService);
 	}

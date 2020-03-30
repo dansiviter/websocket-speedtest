@@ -15,29 +15,26 @@
  */
 package acme.jaxrs;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.lang.annotation.Annotation;
 import java.nio.file.Path;
 
 import javax.ws.rs.ext.ParamConverter;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * Unit test for {@link PathParamConverterProvider};
- * 
+ *
  * @author Daniel Siviter
  * @since v1.0 [24 Oct 2018]
  */
+@ExtendWith(MockitoExtension.class)
 public class PathParamConverterProviderTest {
-	@Rule
-	public MockitoRule mockito = MockitoJUnit.rule();
-
 	@InjectMocks
 	private PathParamConverterProvider provider;
 

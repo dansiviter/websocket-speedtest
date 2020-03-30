@@ -22,9 +22,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 
-import javax.annotation.Resource;
-import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.websocket.EncodeException;
@@ -36,7 +35,7 @@ import acme.api.ControlMessage;
 import acme.api.Results;
 
 /**
- * 
+ *
  * @author Daniel Siviter
  * @since v1.0 [8 Aug 2018]
  *
@@ -45,8 +44,8 @@ import acme.api.Results;
 public class PingService {
 	@Inject
 	private Log log;
-	@Resource
-	private ManagedScheduledExecutorService executor;
+	@Inject
+	private ScheduledExecutorService executor;
 
 	private final List<Integer> pingResults = new ArrayList<>();
 
@@ -56,7 +55,7 @@ public class PingService {
 	private int pingsSent;
 
 	/**
-	 * 
+	 *
 	 * @param session
 	 * @param warmUpCycles
 	 * @param cycles
@@ -77,7 +76,7 @@ public class PingService {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private void sendPing() {
 		log.debugf("Sending ping... [sessionId=%s,sent=%d]", this.session.getId(), this.pingsSent);
@@ -90,7 +89,7 @@ public class PingService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param msg
 	 * @param nanos
 	 */
@@ -115,27 +114,27 @@ public class PingService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param l
 	 * @return
 	 */
 	private static ByteBuffer buf(Long l) {
-		return (ByteBuffer) ByteBuffer.allocate(Long.BYTES).putLong(l).rewind();
+		return ByteBuffer.allocate(Long.BYTES).putLong(l).rewind();
 	}
 
 	/**
-	 * 
+	 *
 	 * @param session
 	 * @param pingsSent
 	 * @return
-	 */ 
+	 */
 	private static boolean isWarmUp(ControlMessage msg, int pingsSent) {
 		final int warmUpCycles = Prop.WARM_UP_CYCLES.getInt(msg);
 		return pingsSent <= warmUpCycles;
 	}
 
 	/**
-	 * 
+	 *
 	 * @param session
 	 * @param pingsSent
 	 * @return
@@ -147,7 +146,7 @@ public class PingService {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private enum Prop {
 		WARM_UP_CYCLES("warmUp"),

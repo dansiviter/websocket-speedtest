@@ -18,13 +18,14 @@ package acme;
 import static acme.FileSize.BYTE;
 import static acme.FileSize.KILOBYTE;
 import static acme.FileSize.MEGABYTE;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Unit test for {@link FileSize}.
- * 
+ *
  * @author Daniel Siviter
  * @since v1.0 [13 Nov 2018]
  *

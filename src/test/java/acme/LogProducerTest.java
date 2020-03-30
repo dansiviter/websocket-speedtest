@@ -15,7 +15,7 @@
  */
 package acme;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -25,23 +25,20 @@ import java.lang.reflect.Member;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.InjectionPoint;
 
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * Unit test for {@link LogProducer}.
- * 
+ *
  * @author Daniel Siviter
  * @since v1.0 [1 Dec 2018]
  */
+@ExtendWith(MockitoExtension.class)
 public class LogProducerTest {
-	@Rule
-	public MockitoRule mockito = MockitoJUnit.rule();
-
 	@Mock
 	private InjectionPoint ip;
 	@Mock
@@ -83,7 +80,7 @@ public class LogProducerTest {
 		verify(this.member).getDeclaringClass();
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		verifyNoMoreInteractions(this.ip, this.bean, this.member);
 	}

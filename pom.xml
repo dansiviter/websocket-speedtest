@@ -5,7 +5,6 @@
 	<groupId>acme</groupId>
 	<artifactId>websocket-speedtest</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
 
 	<properties>
 		<java.version>11</java.version>
@@ -14,17 +13,15 @@
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<thorntail.version>2.5.0.Final</thorntail.version>
-		<failOnMissingWebXml>false</failOnMissingWebXml>
 		<buildFinalName>${project.artifactId}-${project.version}</buildFinalName>
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>io.thorntail</groupId>
-				<artifactId>bom-all</artifactId>
-				<version>${thorntail.version}</version>
+				<groupId>io.helidon</groupId>
+				<artifactId>helidon-bom</artifactId>
+				<version>2.0.0-M2</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -32,30 +29,6 @@
 	</dependencyManagement>
 
 	<dependencies>
-		<dependency>
-			<groupId>io.thorntail</groupId>
-			<artifactId>cdi</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.thorntail</groupId>
-			<artifactId>jaxrs</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.thorntail</groupId>
-			<artifactId>microprofile-openapi</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.thorntail</groupId>
-			<artifactId>thorntail-runner</artifactId>
-			<version>${thorntail.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.eclipse</groupId>
-			<artifactId>yasson</artifactId>
-			<version>1.0</version>
-		</dependency>
-
 		<dependency>
 			<groupId>com.google.code.findbugs</groupId>
 			<artifactId>jsr305</artifactId>
@@ -78,49 +51,61 @@
 			<optional>true</optional>
 		</dependency>
 
+		<dependency>
+			<groupId>io.helidon.microprofile.bundles</groupId>
+			<artifactId>helidon-microprofile</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-jdk14</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>io.helidon.microprofile.websocket</groupId>
+			<artifactId>helidon-microprofile-websocket</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-jdk14</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.media</groupId>
+			<artifactId>jersey-media-json-binding</artifactId>
+			<version>2.30.1</version>
+		</dependency>
+
 
 		<!-- Test Dependencies -->
 
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>5.6.1</version>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<version>3.1.0</version>
+			<artifactId>mockito-junit-jupiter</artifactId>
+			<version>3.3.3</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-jaxrs</artifactId>
-			<version>3.6.2.Final</version>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest</artifactId>
+			<version>2.2</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
 	<build>
-		<finalName>${buildFinalName}</finalName>
 		<plugins>
-			<plugin>
-				<groupId>io.thorntail</groupId>
-				<artifactId>thorntail-maven-plugin</artifactId>
-				<version>${thorntail.version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>package</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<groupId>com.github.eirslett</groupId>
 				<artifactId>frontend-maven-plugin</artifactId>
-				<version>1.8.0</version>
+				<version>1.9.1</version>
 				<configuration>
 					<workingDirectory>src/main/web</workingDirectory>
 					<installDirectory>target</installDirectory>
@@ -132,8 +117,8 @@
 							<goal>install-node-and-yarn</goal>
 						</goals>
 						<configuration>
-							<nodeVersion>v10.16.3</nodeVersion>
-							<yarnVersion>v1.19.1</yarnVersion>
+							<nodeVersion>v12.16.1</nodeVersion>
+							<yarnVersion>v1.22.4</yarnVersion>
 						</configuration>
 					</execution>
 					<execution>
@@ -157,9 +142,30 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+				  <execution>
+					<id>copy-web</id>
+					<phase>process-resources</phase>
+					<goals>
+						<goal>copy-resources</goal>
+					</goals>
+					<configuration>
+					  <outputDirectory>${basedir}/target/classes/web</outputDirectory>
+					  <resources>
+						<resource>
+						  <directory>src/main/web/build</directory>
+						</resource>
+					  </resources>
+					</configuration>
+				  </execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.4</version>
+				<version>0.8.5</version>
 				<executions>
 					<execution>
 						<id>pre-unit-test</id>
@@ -178,7 +184,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.22.2</version>
+				<version>3.0.0-M4</version>
 				<configuration>
 					<useSystemClassLoader>false</useSystemClassLoader> <!-- SUREFIRE-1588 -->
 					<argLine>@{argLine} --illegal-access=permit</argLine>
@@ -186,14 +192,30 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<version>3.2.3</version>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<includeScope>runtime</includeScope>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
-					<webResources>
-						<resource>
-							<directory>src/main/web/build</directory>
-						</resource>
-					</webResources>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<mainClass>io.helidon.microprofile.cdi.Main</mainClass>
+						</manifest>
+					</archive>
 				</configuration>
 			</plugin>
 		</plugins>

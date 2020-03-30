@@ -27,41 +27,37 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
 
-import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.websocket.EncodeException;
 import javax.websocket.PongMessage;
 import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-
-import com.google.common.collect.ImmutableMap;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import acme.api.ControlMessage;
 import acme.api.ControlMessage.Type;
 
 /**
  * Unit test for {@link PingService}.
- * 
+ *
  * @author Daniel Siviter
  * @since v1.0 [2 Dec 2018]
  */
+@ExtendWith(MockitoExtension.class)
 public class PingServiceTest {
-	@Rule
-	public MockitoRule mockito = MockitoJUnit.rule();
-
 	@Mock
 	private Log log;
 	@Mock
-	private ManagedScheduledExecutorService executor;
+	private ScheduledExecutorService executor;
 	@Mock
 	private Session session;
 	@Mock
@@ -70,7 +66,7 @@ public class PingServiceTest {
 	@InjectMocks
 	private PingService pingService;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		when(this.session.getId()).thenReturn("ABC123");
 	}
@@ -82,7 +78,7 @@ public class PingServiceTest {
 
 		ControlMessage controlMsg = new ControlMessage(
 				Type.START,
-				ImmutableMap.of("delay", 250, "warmUp", 10, "cycles", 10));
+				Map.of("delay", 250, "warmUp", 10, "cycles", 10));
 
 		this.pingService.start(session, controlMsg);
 
@@ -97,7 +93,7 @@ public class PingServiceTest {
 	public void on_pong() {
 		final ControlMessage controlMsg = new ControlMessage(
 				Type.START,
-				ImmutableMap.of("delay", 250, "warmUp", 10, "cycles", 10));
+				Map.of("delay", 250, "warmUp", 10, "cycles", 10));
 		set(this.pingService, "controlMsg", controlMsg);
 		final PongMessage msg = mock(PongMessage.class);
 
@@ -113,7 +109,7 @@ public class PingServiceTest {
 	public void on_pong_complete() throws IOException, EncodeException {
 		final ControlMessage controlMsg = new ControlMessage(
 				Type.START,
-				ImmutableMap.of("delay", 250, "warmUp", 10, "cycles", 10));
+				Map.of("delay", 250, "warmUp", 10, "cycles", 10));
 		set(this.pingService, "controlMsg", controlMsg);
 		set(this.pingService, "pingsSent", 20);
 		final PongMessage msg = mock(PongMessage.class);
@@ -129,7 +125,7 @@ public class PingServiceTest {
 		verifyNoMoreInteractions(msg);
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		verifyNoMoreInteractions(this.log, this.executor, this.session, this.basic);
 	}
