@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Daniel Siviter
+ * Copyright 2018-2020 Daniel Siviter
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import javax.ws.rs.ext.Provider;
 
 /**
  * Converter for {@link Path}.
- * 
+ *
  * @author Daniel Siviter
  * @since v1.0 [22 Oct 2018]
  */

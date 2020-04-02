@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Daniel Siviter
+ * Copyright 2018-2020 Daniel Siviter
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,13 @@ package acme;
 import java.nio.ByteBuffer;
 import java.util.Random;
 
-
 /**
- * 
+ *
  * @author Daniel Siviter
  * @since v1.0 [7 Aug 2018]
  *
  */
-public enum FileSize { 
+public enum FileSize {
 	BYTE(1),
 	KILOBYTE(1024),
 	MEGABYTE((int) Math.pow(1024, 2));

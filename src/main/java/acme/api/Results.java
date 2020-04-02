@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Daniel Siviter
+ * Copyright 2018-2020 Daniel Siviter
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import java.util.List;
 
 /**
  * Represents the results calculated on the server.
- * 
+ *
  * @author Daniel Siviter
  * @since v1.0 [8 Aug 2018]
  */
@@ -45,7 +45,7 @@ public class Results {
 	}
 
 	/**
-	 * @return ping Round Trip Times (RTT) in nanos. 
+	 * @return ping Round Trip Times (RTT) in nanos.
 	 */
 	public List<Integer> getPings() {
 		return pings;
@@ -69,7 +69,7 @@ public class Results {
 	// --- Static Methods ---
 
 	/**
-	 * 
+	 *
 	 * @param values
 	 * @return
 	 */
@@ -79,7 +79,7 @@ public class Results {
 
 	/**
 	 * Calculate the variation in the latency on a ping/pong flow.
-	 * 
+	 *
 	 * @param values
 	 * @return
 	 */
