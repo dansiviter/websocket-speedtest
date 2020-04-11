@@ -13,24 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package acme;
+package uk.dansiviter.ws;
 
-import java.nio.file.Path;
+import java.io.IOException;
+import java.io.Writer;
 
-import org.jboss.logging.BasicLogger;
-import org.jboss.logging.annotations.LogMessage;
-import org.jboss.logging.annotations.Message;
-import org.jboss.logging.annotations.MessageLogger;
+import javax.websocket.EncodeException;
+import javax.websocket.Encoder;
+
+import uk.dansiviter.api.Results;
 
 /**
  *
  * @author Daniel Siviter
- * @since v1.0 [11 Oct 2019]
+ * @since v1.0 [8 Aug 2018]
  *
  */
-@MessageLogger(projectCode = "WS")
-public interface Log extends BasicLogger {
-	@LogMessage
-	@Message("Static resource requested: %s")
-	void staticResource(Path path);
+public class ResultsEncoder extends AbstractJsonbEncoder implements Encoder.TextStream<Results> {
+	@Override
+	public void encode(Results object, Writer writer) throws EncodeException, IOException {
+		this.jsonb.toJson(object, writer);
+	}
 }

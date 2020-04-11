@@ -43,7 +43,7 @@ reconnect = () => {
 		webSocket.close();
 	}
 
-	webSocket = new WebSocket("ws://" + location.host + "/websocket/v1");
+	webSocket = new WebSocket("ws://" + location.host + "/api/v1/ws");
 	webSocket.onclose = this.onWsClose;
 	webSocket.onerror = this.onWsError;
 	webSocket.onmessage = this.onWsMessage;
