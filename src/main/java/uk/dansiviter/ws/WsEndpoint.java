@@ -48,8 +48,8 @@ public class WsEndpoint extends Endpoint {
 	public void onOpen(Session session, EndpointConfig config) {
 		this.session = session;
 		this.log.infof("Connection opened. [sessionId=%s]", session.getId());
-		session.addMessageHandler(ControlMessage.class, m -> on(m));
-		session.addMessageHandler(PongMessage.class, m -> on(m));
+		session.addMessageHandler(ControlMessage.class, this::on);
+		session.addMessageHandler(PongMessage.class, this::on);
 	}
 
 	void on(ControlMessage msg) {
