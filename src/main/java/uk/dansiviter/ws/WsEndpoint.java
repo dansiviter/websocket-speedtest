@@ -20,13 +20,10 @@ import java.io.IOException;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.websocket.CloseReason;
-import javax.websocket.OnClose;
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
+import javax.websocket.Endpoint;
+import javax.websocket.EndpointConfig;
 import javax.websocket.PongMessage;
 import javax.websocket.Session;
-import javax.websocket.server.ServerEndpoint;
 
 import uk.dansiviter.Log;
 import uk.dansiviter.PingService;
@@ -37,12 +34,7 @@ import uk.dansiviter.api.ControlMessage;
  * @author Daniel Siviter
  * @since v1.0 [6 Aug 2018]
  */
-@ServerEndpoint(
-		value = "/ws",
-		subprotocols = "speed-test",
-		decoders = { ControlMessageEncoding.class, FileEncoding.class },
-		encoders = { ControlMessageEncoding.class, FileEncoding.class, ResultsEncoder.class })
-public class Endpoint {
+public class WsEndpoint extends Endpoint {
 	private static final String SERVICE = "service";
 
 	@Inject
@@ -50,13 +42,17 @@ public class Endpoint {
 	@Inject
 	private Provider<PingService> pingService;
 
-	@OnOpen
-	public void onOpen(Session session) {
+	private Session session;
+
+	@Override
+	public void onOpen(Session session, EndpointConfig config) {
+		this.session = session;
 		this.log.infof("Connection opened. [sessionId=%s]", session.getId());
+		session.addMessageHandler(ControlMessage.class, m -> on(m));
+		session.addMessageHandler(PongMessage.class, m -> on(m));
 	}
 
-	@OnMessage
-	public void on(Session session, ControlMessage msg) {
+	void on(ControlMessage msg) {
 		this.log.infof("Control received. [sessionId=%s,type=%s]", session.getId(), msg.type());
 		switch (msg.type()) {
 		case START: {
@@ -73,31 +69,25 @@ public class Endpoint {
 		}
 	}
 
-	@OnMessage
-	public void on(Session session, byte[] msg, boolean last) {
-		this.log.infof("Binary received. [sessionId=%s,msg=%s,last=%s]", session.getId(), msg, last);
-	}
-
-	@OnMessage
-	public void on(Session session, PongMessage msg) {
+	void on(PongMessage msg) {
 		final long nanos = System.nanoTime();
-		this.log.debugf("Pong received. [sessionId=%s,data=%s]", session.getId(), msg.getApplicationData());
+		this.log.debugf("Pong received. [sessionId=%s,data=%s]", this.session.getId(), msg.getApplicationData());
 		pingService(session).on(msg, nanos);
 	}
 
-	@OnError
+	@Override
 	public void onError(Session session, Throwable t) {
-		this.log.warnf(t, "Error! [sessionId=%s,msg=%s]", session.getId(), t.getMessage());
+		this.log.warnf(t, "Error! [sessionId=%s,msg=%s]", this.session.getId(), t.getMessage());
 		try {
-			if (session.isOpen()) {
-				session.getBasicRemote().sendText("ERROR: " + t.getMessage());
+			if (this.session.isOpen()) {
+				this.session.getBasicRemote().sendText("ERROR: " + t.getMessage());
 			}
 		} catch (IOException e) {
 			this.log.error(e.getMessage(), e);
 		}
 	}
 
-	@OnClose
+	@Override
 	public void onClose(Session session, CloseReason reason) {
 		this.log.infof("Connection closed. [sessionId=%s,reasonCode=%s]", session.getId(), reason.getCloseCode());
 	}

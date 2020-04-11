@@ -15,10 +15,8 @@
  */
 package uk.dansiviter.ws;
 
-import static uk.dansiviter.api.ControlMessage.Type.START;
 import static javax.websocket.CloseReason.CloseCodes.CANNOT_ACCEPT;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -26,6 +24,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static uk.dansiviter.api.ControlMessage.Type.START;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -37,7 +36,7 @@ import javax.websocket.CloseReason;
 import javax.websocket.PongMessage;
 import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
-import javax.websocket.server.ServerEndpoint;
+import javax.websocket.MessageHandler.Whole;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -51,13 +50,13 @@ import uk.dansiviter.PingService;
 import uk.dansiviter.api.ControlMessage;
 
 /**
- * Unit tests for {@link Endpoint}.
+ * Unit tests for {@link WsEndpoint}.
  *
  * @author Daniel Siviter
  * @since v1.0 [1 Dec 2018]
  */
 @ExtendWith(MockitoExtension.class)
-public class EndpointTest {
+public class WsEndpointTest {
 	@Mock
 	private Log log;
 	@Mock
@@ -68,25 +67,19 @@ public class EndpointTest {
 	private PingService pingService;
 
 	@InjectMocks
-	private Endpoint endpoint;
+	private WsEndpoint endpoint;
 
 	@Test
-	public void typeAnnotations() {
-		final ServerEndpoint serverEndpoint = Endpoint.class.getAnnotation(ServerEndpoint.class);
-		assertEquals("/v1", serverEndpoint.value());
-		assertArrayEquals(new String[] { "speed-test" }, serverEndpoint.subprotocols());
-		assertArrayEquals(new Class[] { ControlMessageEncoding.class, FileEncoding.class }, serverEndpoint.decoders());
-		assertArrayEquals(new Class[] { ControlMessageEncoding.class, FileEncoding.class, ResultsEncoder.class }, serverEndpoint.encoders());
-	}
-
-	@Test
+	@SuppressWarnings("unchecked")
 	public void onOpen() {
 		when(this.session.getId()).thenReturn("ABC123");
 
-		this.endpoint.onOpen(this.session);
+		this.endpoint.onOpen(this.session, null);
 
 		verify(this.log).infof("Connection opened. [sessionId=%s]", "ABC123");
 		verify(this.session).getId();
+		verify(this.session).addMessageHandler(eq(ControlMessage.class), any(Whole.class));
+		verify(this.session).addMessageHandler(eq(PongMessage.class), any(Whole.class));
 	}
 
 	@Test
@@ -100,23 +93,13 @@ public class EndpointTest {
 		when(session.getUserProperties()).thenReturn(new HashMap<String, Object>());
 		when(this.pingServiceProvider.get()).thenReturn(this.pingService);
 
-		this.endpoint.on(session, msg);
+		this.endpoint.on(msg);
 
 		verify(this.session).getId();
 		verify(this.log).infof("Control received. [sessionId=%s,type=%s]", "ABC123", START);
 		verify(session, times(2)).getUserProperties();
 		verify(this.pingServiceProvider).get();
 		verify(this.pingService).start(this.session, msg);
-	}
-
-	@Test
-	public void onBinary() {
-		when(this.session.getId()).thenReturn("ABC123");
-		final byte[] payload = new byte[0];
-		this.endpoint.on(session, payload, true);
-
-		verify(this.session).getId();
-		verify(this.log).infof("Binary received. [sessionId=%s,msg=%s,last=%s]", "ABC123", payload, true);
 	}
 
 	@Test
@@ -129,7 +112,7 @@ public class EndpointTest {
 		map.put("service", this.pingService);
 		when(session.getUserProperties()).thenReturn(map);
 
-		this.endpoint.on(this.session, msg);
+		this.endpoint.on(msg);
 
 		verify(this.session).getId();
 		verify(this.log).debugf("Pong received. [sessionId=%s,data=%s]", "ABC123", buf);

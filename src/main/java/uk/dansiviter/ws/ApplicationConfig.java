@@ -17,11 +17,14 @@ package uk.dansiviter.ws;
 
 import static java.util.Collections.emptySet;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.websocket.Endpoint;
 import javax.websocket.server.ServerApplicationConfig;
 import javax.websocket.server.ServerEndpointConfig;
+
+import org.glassfish.tyrus.ext.extension.deflate.PerMessageDeflateExtension;
 
 import io.helidon.microprofile.server.RoutingPath;
 
@@ -34,11 +37,18 @@ import io.helidon.microprofile.server.RoutingPath;
 public class ApplicationConfig implements ServerApplicationConfig {
 	@Override
 	public Set<ServerEndpointConfig> getEndpointConfigs(Set<Class<? extends Endpoint>> endpointClasses) {
-		return emptySet();
+		return Set.of(
+			ServerEndpointConfig.Builder.create(WsEndpoint.class, "/ws")
+					.subprotocols(List.of("speed-test"))
+					.decoders(List.of(ControlMessageEncoding.class, FileEncoding.class))
+					.encoders(List.of(ControlMessageEncoding.class, FileEncoding.class, ResultsEncoder.class))
+					.extensions(List.of(new PerMessageDeflateExtension()))
+					.build()
+		);
 	}
 
 	@Override
 	public Set<Class<?>> getAnnotatedEndpointClasses(Set<Class<?>> scanned) {
-		return scanned;
+		return emptySet();
 	}
 }
