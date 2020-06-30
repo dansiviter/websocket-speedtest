@@ -1,11 +1,14 @@
 {
   "name": "speedtest",
   "version": "0.1.0",
+  "author": "Daniel Siviter",
+  "license": "Apache-2.0",
+  "repository": "https://gitlab.com/dansiviter/rfq",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.9.0",
     "@material-ui/icons": "^4.9.0",
-    "http-proxy-middleware": "^1.0.0",
+    "http-proxy-middleware": "^1.0.3",
     "prop-types": "^15.7.2",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
