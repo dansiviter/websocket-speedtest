@@ -109,7 +109,7 @@ class App extends Component {
 	handleClickStart = () => {
 		const warmUpCycles = 50;
 		const testCycles = 100;
-		const delay = 100;
+		const delay = 25;
 		console.log('Starting... [warm-up=%d,cycles=%d,delay=%d]', warmUpCycles, testCycles, delay);
 		this.worker.postMessage({ type: "START", params: {
 			warmUp: warmUpCycles, cycles: testCycles, delay: delay }
@@ -161,13 +161,13 @@ class App extends Component {
 							<CardContent>
 							<Gauge width={220} height={140} max={ 50 } label={ 'Avg. RTT' }
 									color={avgRttHex} value={ this.state.avgRtt }
-									valueFormatter={ value => `${value}ms` } 
+									valueFormatter={ value => `${value}ms` }
 									topLabelStyle={ topStyle }
 									valueLabelStyle={ valueStyle }
 									minMaxLabelStyle={ minMaxStyle } />
 							<Gauge width={220} height={140} max={ 20 } label={ 'Jitter' }
 									color={jitterHex} value={ this.state.jitter }
-									valueFormatter={ value => `${value}ms` } 
+									valueFormatter={ value => `${value}ms` }
 									topLabelStyle={ topStyle }
 									valueLabelStyle={ valueStyle }
 									minMaxLabelStyle={ minMaxStyle } />

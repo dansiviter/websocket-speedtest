@@ -22,6 +22,7 @@ import javax.inject.Provider;
 import javax.websocket.CloseReason;
 import javax.websocket.Endpoint;
 import javax.websocket.EndpointConfig;
+import javax.websocket.MessageHandler.Whole;
 import javax.websocket.PongMessage;
 import javax.websocket.Session;
 
@@ -48,8 +49,19 @@ public class WsEndpoint extends Endpoint {
 	public void onOpen(Session session, EndpointConfig config) {
 		this.session = session;
 		this.log.infof("Connection opened. [sessionId=%s]", session.getId());
-		session.addMessageHandler(ControlMessage.class, this::on);
-		session.addMessageHandler(PongMessage.class, this::on);
+		// cannot use lambdas due to lack of support in tyrus [eclipse-ee4j/tyrus#630]
+		session.addMessageHandler(ControlMessage.class, new Whole<ControlMessage>() {
+			@Override
+			public void onMessage(ControlMessage message) {
+				on(message);
+			}
+		});
+		session.addMessageHandler(PongMessage.class, new Whole<PongMessage>() {
+			@Override
+			public void onMessage(PongMessage message) {
+				on(message);
+			}
+		});
 	}
 
 	void on(ControlMessage msg) {
